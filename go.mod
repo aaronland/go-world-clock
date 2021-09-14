@@ -3,6 +3,7 @@ module github.com/aaronland/go-world-clock
 go 1.17
 
 require (
+	github.com/sfomuseum/go-flags v0.8.2
 	github.com/tidwall/gjson v1.9.0
 	github.com/whosonfirst/go-whosonfirst-iterate v1.2.0
 )
