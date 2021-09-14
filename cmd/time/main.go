@@ -30,20 +30,29 @@ func main() {
 
 	ctx := context.Background()
 
-	now := time.Now()
-	here := now.Local()
-
 	filters := &clock.Filters{
 		Timezones: in_timezones,
 	}
 
-	results, err := clock.Time(ctx, here, filters)
+	now := time.Now()
+	here := now.Local()
+
+	err := process(ctx, here, filters)
 
 	if err != nil {
-		log.Fatalf("Failed to determine time, %v", err)
+		log.Fatalf("Failed to process '%v', %v", here, err)
+	}
+}
+
+func process(ctx context.Context, source time.Time, filters *clock.Filters) error {
+
+	results, err := clock.Time(ctx, source, filters)
+
+	if err != nil {
+		return fmt.Errorf("Failed to determine time, %v", err)
 	}
 
-	zn, _ := here.Zone()
+	zn, _ := source.Zone()
 	seen := false
 
 	d_fmt := "Monday"
@@ -85,6 +94,8 @@ func main() {
 
 		fmt.Printf("%s %s\t%s\n", label, r_zn, str_t)
 	}
+
+	return nil
 }
 
 func padding(input string, final int) string {
