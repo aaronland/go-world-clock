@@ -52,7 +52,7 @@ Valid options are:
     	Zero or more strings to test whether they are contained by a given timezone's longform (major/minor) label.
 ```
 
-For example:
+#### Example:
 
 ```
 $> ./bin/time -in Melbourne -in Cairo -in Honolulu -in China -in Montreal -in London
