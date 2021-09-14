@@ -1,16 +1,15 @@
 package clock
 
 import (
-	"fmt"
 	"time"
 )
 
+// type Location contains structured data about the time in a given timezone
 type Location struct {
-	Id       string
+	// The (string) Who's On First ID associated with the timezone
+	Id string
+	// The major/minor label for the timezone
 	Timezone string
-	Time     time.Time
-}
-
-func (l *Location) String() string {
-	return fmt.Sprintf("%s\t%s\t\t%s", l.Id, l.Timezone, l.Time.Format(time.RFC3339))
+	// The time in that timezone
+	Time time.Time
 }

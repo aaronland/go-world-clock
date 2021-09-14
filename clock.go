@@ -6,13 +6,16 @@ import (
 	"fmt"
 	"github.com/aaronland/go-world-clock/timezones"
 	"io"
+	_ "log"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 )
 
-func Time(ctx context.Context, source time.Time, in ...string) ([]*Location, error) {
+// Time will return zero or more Location records in other timezones for the time defined in source.
+// Results may be limited by passing in a Filter instance with zero or more limits.
+func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -107,20 +110,23 @@ func Time(ctx context.Context, source time.Time, in ...string) ([]*Location, err
 				return
 			}
 
-			if len(in) > 0 {
+			if f != nil {
 
-				ok := false
+				if len(f.Timezones) > 0 {
 
-				for _, label := range in {
+					ok := false
 
-					if strings.Contains(row_tz, label) {
-						ok = true
-						break
+					for _, label := range f.Timezones {
+
+						if strings.Contains(row_tz, label) {
+							ok = true
+							break
+						}
 					}
-				}
 
-				if !ok {
-					return
+					if !ok {
+						return
+					}
 				}
 			}
 
