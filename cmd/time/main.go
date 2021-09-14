@@ -2,12 +2,13 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
+	_ "fmt"
 	"github.com/aaronland/go-world-clock/timezones"
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
 	"io"
 	"log"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -17,11 +18,8 @@ func main() {
 
 	fs := flagset.NewFlagSet("time")
 
-	var wof_ids multi.MultiString
-	fs.Var(&wof_ids, "wof-id", "...")
-
 	var labels multi.MultiString
-	fs.Var(&labels, "label", "...")
+	fs.Var(&labels, "in", "...")
 
 	flagset.Parse(fs)
 
@@ -36,11 +34,43 @@ func main() {
 
 	now := time.Now()
 	here := now.Local()
-	zn, _ := here.Zone()
+	zn, offset := here.Zone()
 
 	csv_r := csv.NewReader(fh)
 
 	wg := new(sync.WaitGroup)
+
+	tmp := make(map[int][]time.Time)
+
+	tmp[offset] = []time.Time{
+		here,
+	}
+
+	candidates_ch := make(chan time.Time)
+	done_ch := make(chan bool)
+
+	go func() {
+
+		for {
+			select {
+			case <-done_ch:
+				return
+			case t := <-candidates_ch:
+
+				_, offset := t.Zone()
+
+				offset_times, exists := tmp[offset]
+
+				if !exists {
+					offset_times = make([]time.Time, 0)
+				}
+
+				offset_times = append(offset_times, t)
+				tmp[offset] = offset_times
+
+			}
+		}
+	}()
 
 	for {
 
@@ -67,24 +97,6 @@ func main() {
 				return
 			}
 
-			if len(wof_ids) > 0 {
-
-				row_id := row[0]
-				ok := false
-
-				for _, id := range wof_ids {
-
-					if id == row_id {
-						ok = true
-						break
-					}
-				}
-
-				if !ok {
-					return
-				}
-			}
-
 			if len(labels) > 0 {
 
 				ok := false
@@ -105,9 +117,29 @@ func main() {
 			loc, _ := time.LoadLocation(row_tz)
 
 			there := here.In(loc)
-			fmt.Printf("%s %v\n", row_tz, there)
+			candidates_ch <- there
+
 		}(row)
 	}
 
 	wg.Wait()
+
+	done_ch <- true
+
+	//
+
+	offsets := make([]int, 0)
+
+	for i, _ := range tmp {
+		offsets = append(offsets, i)
+	}
+
+	sort.Ints(offsets)
+
+	for _, i := range offsets {
+
+		for _, t := range tmp[i] {
+			log.Println(t)
+		}
+	}
 }
