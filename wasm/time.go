@@ -54,7 +54,8 @@ func TimeFunc() js.Func {
 					reject.Invoke(fmt.Printf("Missing timezone"))
 					return nil					
 				}
-				
+
+				// Failed to load timezone, %!w(syscall.Errno=38)2025/05/13 12:46:41 ERROR Failed load timezone date=2025-06-07T13:25 tz=Europe/London error="not implemented on js"
 				loc, err := time.LoadLocation(tz)
 				
 				if err != nil {
