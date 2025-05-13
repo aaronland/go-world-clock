@@ -2,12 +2,14 @@
 package wasm
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"syscall/js"
 	"time"
-
+	"strings"
+	
 	"github.com/aaronland/go-world-clock"	
 )
 
@@ -41,6 +43,8 @@ func TimeFunc() js.Func {
 			resolve := args[0]
 			reject := args[1]
 
+			ctx := context.Background()
+			
 			var source time.Time
 			
 			if date != "" {
@@ -84,8 +88,8 @@ func TimeFunc() js.Func {
 
 			results := make([]*TimeFuncResults, 0)
 
-			zn, _ := source.Zone()
-			seen := false
+			// zn, _ := source.Zone()
+			// seen := false
 			
 			d_fmt := "Monday"
 			t_fmt := "2006-01-02 15:04"
@@ -97,7 +101,6 @@ func TimeFunc() js.Func {
 				r_zn, _ := r.Time.Zone()
 				
 				d := r.Time.Format(d_fmt)
-				d = padding(d, 10)
 				
 				t := r.Time.Format(t_fmt)
 				str_t := fmt.Sprintf("%s %s", d, t)
@@ -108,10 +111,10 @@ func TimeFunc() js.Func {
 					DateTime: str_t,
 				}
 				
-				results = append(results, wasm)
+				results = append(results, wasm_r)
 			}
 
-			enc_results := json.Marshal(results)
+			enc_results, err := json.Marshal(results)
 
 			if err != nil {
 				logger.Error("Failed to marshal results", "error", err)
