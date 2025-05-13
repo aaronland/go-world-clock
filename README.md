@@ -12,9 +12,10 @@ Documentation is in progress and incomplete at this time.
 
 ```
 import (
-	"github.com/aaronland/go-world-clock"
 	"log"
         "time"
+
+	"github.com/aaronland/go-world-clock"
 )
 
 func main(){

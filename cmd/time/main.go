@@ -4,14 +4,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/aaronland/go-world-clock"
-	"github.com/sfomuseum/go-flags/flagset"	
-	"github.com/sfomuseum/go-flags/multi"
 	"log"
 	"os"
 	_ "strings"
 	"unicode/utf8"
 	"time"
+
+	"github.com/aaronland/go-world-clock"
+	"github.com/sfomuseum/go-flags/flagset"	
+	"github.com/sfomuseum/go-flags/multi"	
 )
 
 func main() {

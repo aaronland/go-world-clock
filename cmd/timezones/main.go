@@ -5,14 +5,15 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"github.com/tidwall/gjson"
-	"github.com/whosonfirst/go-whosonfirst-iterate/iterator"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/tidwall/gjson"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"	
 )
 
 func main() {
@@ -34,9 +35,9 @@ func main() {
 
 	mu := new(sync.RWMutex)
 
-	iter_cb := func(ctx context.Context, fh io.ReadSeeker, args ...interface{}) error {
+	iter_cb := func(ctx context.Context, path string, r io.ReadSeeker, args ...interface{}) error {
 
-		body, err := io.ReadAll(fh)
+		body, err := io.ReadAll(r)
 
 		if err != nil {
 			return fmt.Errorf("Failed to read body, %v", err)
