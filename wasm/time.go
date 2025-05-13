@@ -1,6 +1,10 @@
 //go:build wasmjs
 package wasm
 
+// See the way we are importing time/tzdata? That is important in order for
+// time.LoadLocation to work in WASM-land. This fact isn't really documented
+// anywhere but here: https://github.com/golang/go/issues/44408#issuecomment-1062548031
+
 import (
 	"context"
 	"encoding/json"
@@ -8,6 +12,7 @@ import (
 	"log/slog"
 	"syscall/js"
 	"time"
+	_ "time/tzdata" 
 	"strings"
 	
 	"github.com/aaronland/go-world-clock"	

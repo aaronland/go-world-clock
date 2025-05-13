@@ -12,3 +12,6 @@ wasmjs:
 		go build -mod $(GOMOD) -ldflags="-s -w" -tags wasmjs \
 		-o www/wasm/world_clock_time.wasm \
 		cmd/time-wasm/main.go
+
+server:
+	fileserver -root www
