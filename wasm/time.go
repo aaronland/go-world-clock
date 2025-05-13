@@ -22,6 +22,7 @@ type TimeFuncResults struct {
 	Label string `json:"label"`
 	TimeZone string `json:"timezone"`
 	DateTime string `json:"datetime"`
+	IsFoo bool `json:"is_foo"`
 }
 
 func TimeFunc() js.Func {
@@ -94,27 +95,40 @@ func TimeFunc() js.Func {
 
 			results := make([]*TimeFuncResults, 0)
 
-			// zn, _ := source.Zone()
-			// seen := false
+			zn, _ := source.Zone()
+			seen := false
 			
 			d_fmt := "Monday"
 			t_fmt := "2006-01-02 15:04"
 			
 			for _, r := range clock_results {
 
-				// TBD...
+				is_foo := false
 				
 				r_zn, _ := r.Time.Zone()
+
+				if r_zn == zn {
+
+					if seen {
+						continue
+					}
+					
+					is_foo = true
+					seen = true
+				}
 				
 				d := r.Time.Format(d_fmt)
 				
 				t := r.Time.Format(t_fmt)
 				str_t := fmt.Sprintf("%s %s", d, t)
+
+				label := r.Timezone
 				
 				wasm_r := &TimeFuncResults{
-					// Label: label,
+					Label: label,
 					TimeZone: r_zn,
 					DateTime: str_t,
+					IsFoo: is_foo,
 				}
 				
 				results = append(results, wasm_r)

@@ -15,3 +15,7 @@ wasmjs:
 
 server:
 	fileserver -root www
+
+debug:
+	@make wasmjs
+	@make server
