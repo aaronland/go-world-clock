@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tidwall/gjson"
-	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"	
+	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 )
 
 func main() {

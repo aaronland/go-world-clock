@@ -7,12 +7,12 @@ import (
 	"log"
 	"os"
 	_ "strings"
-	"unicode/utf8"
 	"time"
+	"unicode/utf8"
 
 	"github.com/aaronland/go-world-clock"
-	"github.com/sfomuseum/go-flags/flagset"	
-	"github.com/sfomuseum/go-flags/multi"	
+	"github.com/sfomuseum/go-flags/flagset"
+	"github.com/sfomuseum/go-flags/multi"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 
 	date := fs.String("date", "", "YYYY-MM-dd HH:mm. If empty the current time in the computer's locale will be used.")
 	timezone := fs.String("timezone", "", "A valid major/minor timezone location. Required if -date is not empty.")
-	
+
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Print the local time as well as the time in one or more timezones.\n\n")
 		fmt.Fprintf(os.Stderr, "Usage:\n\t %s [options]\n\n", os.Args[0])
@@ -47,13 +47,13 @@ func main() {
 		if *timezone == "" {
 			log.Fatalf("Missing -timezone parameter")
 		}
-		
+
 		loc, err := time.LoadLocation(*timezone)
-			
+
 		if err != nil {
 			log.Fatalf("Failed load location '%s', %v", *timezone, err)
 		}
-		
+
 		t, err := time.ParseInLocation("2006-01-02 15:04", *date, loc)
 
 		if err != nil {
@@ -61,12 +61,12 @@ func main() {
 		}
 
 		source = t
-		
+
 	} else {
 		now := time.Now()
 		source = now.Local()
 	}
-	
+
 	err := process(ctx, source, filters)
 
 	if err != nil {
@@ -132,11 +132,11 @@ func padding(input string, final int) string {
 
 	// input_len := len(input)
 	input_len := utf8.RuneCountInString(input)
-	
+
 	// log.Println(input, input_len)
 	padding := ""
 
-	for i := 0; i < final - input_len; i++ {
+	for i := 0; i < final-input_len; i++ {
 		padding = padding + " "
 	}
 

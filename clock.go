@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aaronland/go-world-clock/timezones"	
+	"github.com/aaronland/go-world-clock/timezones"
 )
 
 // Time will return zero or more Location records in other timezones for the time defined in source.
