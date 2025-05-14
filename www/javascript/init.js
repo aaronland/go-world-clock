@@ -24,6 +24,10 @@ window.addEventListener("load", function load(event){
 	    
     };
 
+    var render_results = function() {
+
+    };
+    
     var derive_times = function(){
 
 	var date_el = document.getElementById("date");
@@ -92,6 +96,7 @@ window.addEventListener("load", function load(event){
 	    }
 
 	    var add_el = document.getElementById("add-other");
+	    add_el.style.display = "inline";
 	    
 	    add_el.onclick = function(){
 		add_other_timezone();

@@ -2,8 +2,28 @@ body {
 	padding: 1rem;
 }
 
+#add-other {
+	text-decoration:underline;
+	display:none;
+}
+
+#add-other:before {
+	content: "(";
+}
+
+#add-other:after {
+	content: ")";
+}
+
 .other-timezone {
 	margin-bottom: 1rem !important;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns:1fr 1fr;
+	gap: 25px 25px;
+	
 }
 
 
