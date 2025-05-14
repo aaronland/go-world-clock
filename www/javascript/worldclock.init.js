@@ -107,8 +107,6 @@ window.addEventListener("load", function load(event){
 	
 	var str_others = others.join(",");
 
-	console.log(date, tz, str_others);
-	
 	world_clock_time(date, tz, str_others).then((rsp) => {
 	    const results = JSON.parse(rsp);
 	    render_results(results);

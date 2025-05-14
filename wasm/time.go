@@ -100,7 +100,7 @@ func TimeFunc() js.Func {
 
 			results := make([]*TimeFuncResults, 0)
 
-			// zn, _ := source.Zone()
+			source_zn, _ := source.Zone()
 			// seen := false
 			
 			day_fmt := "Monday"
@@ -109,6 +109,19 @@ func TimeFunc() js.Func {
 			
 			for _, r := range clock_results {
 
+				r_zn, _ := r.Time.Zone()
+
+				slog.Info("WTF", "source zone", source_zn, "row zone", r_zn, "source tz", tz, "row tz", r.Timezone)
+				
+				if r_zn == source_zn {
+
+					slog.Info("ZONE MATCH", "row", r.Timezone, "source", tz)
+					
+					if r.Timezone != tz {
+						continue
+					}
+				}
+				
 				label_parts := strings.Split(r.Timezone, "/")
 				label := fmt.Sprintf("%s (%s)", label_parts[1], label_parts[0])
 				

@@ -5,8 +5,9 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	_ "log"
+	"log/slog"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,7 +22,9 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	source_zn, _ := source.Zone()
+	source_zn, source_offset := source.Zone()
+
+	slog.Info("GET TIME", "source", source_zn, "offset", source_offset)
 
 	tz_fs := timezones.FS
 	tz_fh, err := tz_fs.Open("timezones.csv")
@@ -98,8 +101,11 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 			row_id := row[0]
 			row_tz := row[1]
 			row_zn := row[2]
+			row_offset, _ := strconv.Atoi(row[3])
 
-			if row_zn == source_zn {
+			if row_zn == source_zn || row_offset == source_offset {
+
+				slog.Info("WTF", "row", row_zn, "source", source_zn)
 
 				l := &Location{
 					Time:     source,
@@ -120,6 +126,7 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 					for _, label := range f.Timezones {
 
 						if strings.Contains(row_tz, label) {
+							// slog.Info("OK", "row", row_tz, "label", label)
 							ok = true
 							break
 						}
