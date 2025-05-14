@@ -5,28 +5,36 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- <link rel="manifest" href="manifest.json" /> -->
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/worldclock.css" />	
     </head>
     <body>
 
-	<form class="form">
-	    <div class="mb-3">
-		<label class="form-label" from="date"">Date (YYYY-MM-dd HH:mm)</label>
-		<input class="form-control" type="text" name="date" id="date" />
+	<div class="row grid">
+	    <div>
+		
+		<form class="form">
+		    <div class="mb-3">
+			<label class="form-label" from="date"">Date (YYYY-MM-dd HH:mm)</label>
+			<input class="form-control" type="text" name="date" id="date" />
+		    </div>
+		    <div class="mb-3">
+			<label class="form-label" from="timezone">Location (timezone)</label>		
+			<select class="form-select" name="timezone" id="timezone" >
+			    <option value="" />
+			</select>
+		    </div>
+		    <div class="mb-3" id="other-timezones">
+			<label class="form-label" from="from">Other locations (timezones) <span id="add-other">add</span></label>		
+			<select class="form-select other-timezone">
+			    <option value="" />		    
+			</select>
+		    </div>
+		    <button class="btn btn-primary" disabled="disabled" id="submit">Lookup</button>
+		</form>
 	    </div>
-	    <div class="mb-3">
-		<label class="form-label" from="timezone">Timezone</label>		
-		<select class="form-select" name="timezone" id="timezone" >
-		    <option value="" />
-		</select>
+	    <div id="results">
 	    </div>
-	    <div class="mb-3">
-		<label class="form-label" from="from">Locations (other timezones)</label>		
-		<select class="form-select" name="location" id="locations">
-		    <option value="" />		    
-		</select>
-	    </div>
-	    <button class="btn btn-primary" disabled="disabled" id="submit">Lookup</button>
-	</form>
+	</div>
 	
     </body>
     <script type="text/javascript" src="javascript/sfomuseum.golang.wasm.bundle.js"></script>
