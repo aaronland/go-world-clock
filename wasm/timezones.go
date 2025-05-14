@@ -15,6 +15,7 @@ import (
 	"syscall/js"
 	"strconv"
 	"strings"
+	"sync"
 	
 	"github.com/aaronland/go-world-clock/timezones"
 )
@@ -50,6 +51,8 @@ func TimeZonesFunc() js.Func {
 
 			csv_r := csv.NewReader(tz_r)
 
+			seen := new(sync.Map)
+			
 			for {
 				
 				row, err := csv_r.Read()
@@ -67,6 +70,12 @@ func TimeZonesFunc() js.Func {
 				str_id := row[0]
 				tz_name := row[1]
 
+				_, exists := seen.LoadOrStore(str_id, true)
+
+				if exists {
+					continue
+				}
+				
 				id, err := strconv.ParseInt(str_id, 10, 64)
 
 				if err != nil {

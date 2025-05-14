@@ -15,6 +15,7 @@ import (
 	_ "time/tzdata" 
 	"strings"
 	"sort"
+	"sync"
 	
 	"github.com/aaronland/go-world-clock"	
 )
@@ -98,10 +99,12 @@ func TimeFunc() js.Func {
 				return nil										
 			}
 
+			// START OF put me in a function
+			
 			results := make([]*TimeFuncResults, 0)
 
-			source_zn, _ := source.Zone()
-			// seen := false
+			source_zn, source_offset := source.Zone()
+			seen := new(sync.Map)
 			
 			day_fmt := "Monday"
 			date_fmt := "2006-01-02"
@@ -109,17 +112,19 @@ func TimeFunc() js.Func {
 			
 			for _, r := range clock_results {
 
-				r_zn, _ := r.Time.Zone()
+				r_zn, r_offset := r.Time.Zone()
 
-				slog.Info("WTF", "source zone", source_zn, "row zone", r_zn, "source tz", tz, "row tz", r.Timezone)
-				
-				if r_zn == source_zn {
+				if r_zn == source_zn && r_offset == source_offset {
 
-					slog.Info("ZONE MATCH", "row", r.Timezone, "source", tz)
-					
 					if r.Timezone != tz {
 						continue
 					}
+				}
+
+				_, exists := seen.LoadOrStore(r.Timezone, true)
+
+				if exists {
+					continue
 				}
 				
 				label_parts := strings.Split(r.Timezone, "/")
@@ -136,12 +141,14 @@ func TimeFunc() js.Func {
 				
 				results = append(results, wasm_r)
 			}
-
+			
 			// Sort in descending order (future to past)
 			
 			sort.Slice(results, func(i, j int) bool {
 				return results[i].UnixTimestamp > results[j].UnixTimestamp
 			})
+
+			// END OF put me in a function
 			
 			enc_results, err := json.Marshal(results)
 

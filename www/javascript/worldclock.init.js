@@ -86,7 +86,12 @@ window.addEventListener("load", function load(event){
 	}
 
 	table.appendChild(tbody);
-	results_el.appendChild(table);
+
+	var wrapper = document.createElement("div");
+	wrapper.setAttribute("class", "table-responsive");
+	wrapper.appendChild(table);
+	
+	results_el.appendChild(wrapper);
     };
     
     var derive_times = function(){

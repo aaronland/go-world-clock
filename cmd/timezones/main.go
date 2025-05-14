@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"sync"
@@ -19,7 +20,7 @@ import (
 func main() {
 
 	iterator_uri := flag.String("iterator-uri", "repo://?include=properties.wof:placetype=timezone", "A valid whosonfirst/go-whosonfirst-iterate URI string.")
-	iterator_source := flag.String("iterator-source", "/usr/local/data/whosonfirst-data-admin-xy", "A valid whosonfirst/go-whosonfirst-iterate data source.")
+	iterator_source := flag.String("iterator-source", "/usr/local/data/whosonfirst/whosonfirst-data-admin-xy", "A valid whosonfirst/go-whosonfirst-iterate data source.")
 
 	flag.Parse()
 
@@ -65,22 +66,45 @@ func main() {
 		}
 
 		now := time.Now()
-		here := now.In(loc)
+		rows := new(sync.Map)
 
-		zn, offset := here.Zone()
+		for i := 0; i < 12; i++ {
+
+			ymd := fmt.Sprintf("%04d-%02d-01", now.Year(), i+1)
+			dt, err := time.Parse("2006-01-02", ymd)
+
+			if err != nil {
+				return fmt.Errorf("Failed to parse %s, %w", ymd, err)
+			}
+
+			here := dt.In(loc)
+			zn, offset := here.Zone()
+
+			key := fmt.Sprintf("%s %s %d", tz, zn, offset)
+
+			row := []string{
+				strconv.FormatInt(id, 10),
+				tz,
+				zn,
+				strconv.Itoa(offset),
+			}
+
+			rows.LoadOrStore(key, row)
+		}
 
 		mu.Lock()
 		defer mu.Unlock()
 
-		out := []string{
-			strconv.FormatInt(id, 10),
-			tz,
-			zn,
-			strconv.Itoa(offset),
-		}
+		rows.Range(func(k interface{}, v interface{}) bool {
 
-		csv_wr.Write(out)
-		csv_wr.Flush()
+			key := k.(string)
+			out := v.([]string)
+
+			slog.Debug("Write timezone", "key", key)
+			csv_wr.Write(out)
+			csv_wr.Flush()
+			return true
+		})
 
 		return nil
 	}
