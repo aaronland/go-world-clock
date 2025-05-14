@@ -11,14 +11,17 @@ import (
 	"fmt"
 	"log/slog"
 	"io"
+	"sort"
 	"syscall/js"
 	"strconv"
+	"strings"
 	
 	"github.com/aaronland/go-world-clock/timezones"
 )
 
 type TimeZone struct {
 	Name string `json:"name"`
+	Label string `json:"label"`
 	WhosOnFirstId int64 `json:"wof:id"`
 }
 
@@ -62,7 +65,7 @@ func TimeZonesFunc() js.Func {
 				}
 
 				str_id := row[0]
-				name := row[1]
+				tz_name := row[1]
 
 				id, err := strconv.ParseInt(str_id, 10, 64)
 
@@ -71,13 +74,22 @@ func TimeZonesFunc() js.Func {
 					continue
 				}
 
+				tz_parts := strings.Split(tz_name, "/")
+
+				tz_label := fmt.Sprintf("%s (%s)", tz_parts[1], tz_parts[0])
+				
 				tz := &TimeZone{
-					Name: name,
+					Name: tz_name,
+					Label: tz_label,
 					WhosOnFirstId: id,
 				}
 
 				tz_results = append(tz_results, tz)
 			}
+
+			sort.Slice(tz_results, func(i, j int) bool {
+				return tz_results[i].Name < tz_results[j].Name
+			})
 			
 			enc_results, err := json.Marshal(tz_results)
 

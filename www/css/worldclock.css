@@ -1,5 +1,7 @@
 body {
 	padding: 1rem;
+	padding-left:1.5rem;
+	padding-right:1.5rem;	
 }
 
 #add-other {
@@ -22,9 +24,12 @@ body {
 .grid {
 	display: grid;
 	grid-template-columns:1fr 1fr;
-	gap: 25px 25px;
+	gap: .5rem 1rem;
 	
 }
 
+.grid-item {
+	border: solid thin;
+}
 
 

@@ -17,15 +17,76 @@ window.addEventListener("load", function load(event){
 	    var opt = document.createElement("option");
 	    opt.setAttribute("value", tz.name);
 	    opt.setAttribute("data-whosonfirst-id", tz["wof:id"]);
-	    opt.appendChild(document.createTextNode(tz.name));
+	    opt.appendChild(document.createTextNode(tz.label));
 
 	    el.appendChild(opt);
 	}
 	    
     };
 
-    var render_results = function() {
+    var render_results = function(results) {
 
+	var results_el = document.getElementById("results");
+	results_el.innerHTML = "";
+	
+	var count = results.length;
+
+	if (! count){
+	    return;
+	}
+	
+	var table = document.createElement("table");
+	table.setAttribute("class", "table table-hover");
+
+	var thead = document.createElement("thead");
+	var tbody = document.createElement("tbody");
+	
+	var tr = document.createElement("tr");
+	
+	var tz_header = document.createElement("th");
+	tz_header.appendChild(document.createTextNode("Location"));
+	tr.appendChild(tz_header);
+	
+	var date_header = document.createElement("th");
+	date_header.appendChild(document.createTextNode("Date"));
+	tr.appendChild(date_header);
+
+	var dow_header = document.createElement("th");
+	dow_header.appendChild(document.createTextNode("Day"));
+	tr.appendChild(dow_header);
+	
+	var time_header = document.createElement("th");
+	time_header.appendChild(document.createTextNode("Time"));
+	tr.appendChild(time_header);
+	
+	thead.appendChild(tr);
+	table.appendChild(thead);
+
+	for (var i=0; i < count; i++){
+
+	    var tr = document.createElement("tr");
+	    
+	    var tz_column = document.createElement("td");
+	    tz_column.appendChild(document.createTextNode(results[i].label));
+	    tr.appendChild(tz_column);
+	    	
+	    var date_column = document.createElement("td");
+	    date_column.appendChild(document.createTextNode(results[i].date));
+	    tr.appendChild(date_column);
+
+	    var dow_column = document.createElement("td");
+	    dow_column.appendChild(document.createTextNode(results[i].day_of_week));
+	    tr.appendChild(dow_column);
+	    
+	    var time_column = document.createElement("td");
+	    time_column.appendChild(document.createTextNode(results[i].time));
+	    tr.appendChild(time_column);
+	    
+	    tbody.appendChild(tr);
+	}
+
+	table.appendChild(tbody);
+	results_el.appendChild(table);
     };
     
     var derive_times = function(){
@@ -49,7 +110,8 @@ window.addEventListener("load", function load(event){
 	console.log(date, tz, str_others);
 	
 	world_clock_time(date, tz, str_others).then((rsp) => {
-	    console.log("CLOCK", rsp);
+	    const results = JSON.parse(rsp);
+	    render_results(results);
 	}).catch((err) => {
 	    console.error("SAD", err)
 	});

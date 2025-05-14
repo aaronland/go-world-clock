@@ -14,6 +14,7 @@ import (
 	"time"
 	_ "time/tzdata" 
 	"strings"
+	"sort"
 	
 	"github.com/aaronland/go-world-clock"	
 )
@@ -21,8 +22,10 @@ import (
 type TimeFuncResults struct {
 	Label string `json:"label"`
 	TimeZone string `json:"timezone"`
-	DateTime string `json:"datetime"`
-	IsFoo bool `json:"is_foo"`
+	DayOfWeek string `json:"day_of_week"`
+	Date string `json:"date"`
+	Time string `json:"time"`	
+	UnixTimestamp int64 `json:"unix_timestamp"`
 }
 
 func TimeFunc() js.Func {
@@ -38,11 +41,11 @@ func TimeFunc() js.Func {
 		logger := slog.Default()
 		logger = logger.With("date", date)
 		logger = logger.With("tz", tz)
-
+		logger = logger.With("locations", str_locs)
+		
 		filters := &clock.Filters{
 			Timezones: locations,
 		}
-		
 
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 
@@ -50,6 +53,8 @@ func TimeFunc() js.Func {
 			reject := args[1]
 
 			ctx := context.Background()
+
+			logger.Info("Lookup times")
 			
 			var source time.Time
 			
@@ -95,45 +100,36 @@ func TimeFunc() js.Func {
 
 			results := make([]*TimeFuncResults, 0)
 
-			zn, _ := source.Zone()
-			seen := false
+			// zn, _ := source.Zone()
+			// seen := false
 			
-			d_fmt := "Monday"
-			t_fmt := "2006-01-02 15:04"
+			day_fmt := "Monday"
+			date_fmt := "2006-01-02"
+			time_fmt := "15:04"
 			
 			for _, r := range clock_results {
 
-				is_foo := false
-				
-				r_zn, _ := r.Time.Zone()
-
-				if r_zn == zn {
-
-					if seen {
-						continue
-					}
-					
-					is_foo = true
-					seen = true
-				}
-				
-				d := r.Time.Format(d_fmt)
-				
-				t := r.Time.Format(t_fmt)
-				str_t := fmt.Sprintf("%s %s", d, t)
-
-				label := r.Timezone
+				label_parts := strings.Split(r.Timezone, "/")
+				label := fmt.Sprintf("%s (%s)", label_parts[1], label_parts[0])
 				
 				wasm_r := &TimeFuncResults{
 					Label: label,
-					TimeZone: r_zn,
-					DateTime: str_t,
-					IsFoo: is_foo,
+					TimeZone: r.Timezone,
+					DayOfWeek: r.Time.Format(day_fmt),
+					Date: r.Time.Format(date_fmt),
+					Time: r.Time.Format(time_fmt),					
+					UnixTimestamp: r.Time.Unix(),
 				}
 				
 				results = append(results, wasm_r)
 			}
 
+			// Sort in descending order (future to past)
+			
+			sort.Slice(results, func(i, j int) bool {
+				return results[i].UnixTimestamp > results[j].UnixTimestamp
+			})
+			
 			enc_results, err := json.Marshal(results)
 
 			if err != nil {
