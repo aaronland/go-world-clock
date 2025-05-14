@@ -13,7 +13,11 @@ func main() {
 	time_func := wasm.TimeFunc()
 	defer time_func.Release()
 
+	timezones_func := wasm.TimeZonesFunc()
+	defer timezones_func.Release()
+	
 	js.Global().Set("world_clock_time", time_func)
+	js.Global().Set("world_clock_timezones", timezones_func)	
 
 	c := make(chan struct{}, 0)
 
