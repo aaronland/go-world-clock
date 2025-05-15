@@ -14,17 +14,9 @@ footer {
 }
 
 #add-other {
-	text-decoration:underline;
 	display:none;
 }
 
-#add-other:before {
-	content: "(";
-}
-
-#add-other:after {
-	content: ")";
-}
 
 .other-timezone {
 	margin-bottom: 1rem !important;
