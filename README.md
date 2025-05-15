@@ -82,11 +82,19 @@ And then when you open your web browser to `http://localhost:8080` you should se
 
 ![](docs/images/go-world-clock-wasm-launch.png)
 
+After you enter some dates, times and places you should see something like this:
+
 ![](docs/images/go-world-clock-wasm-times.png)
 
-![](docs/images/go-world-clock-wasm-mobile.png)
+The application is also responsive so on smaller screens the results are shown beneath the input form:
+
+![](docs/images/go-world-clock-wasm-mobile-sm.png)
 
 ### Notes
+
+#### Mobile
+
+Unfortunately there is no "typeahead" functionality when selecting timezones on mobile devices. This means scrolling through a very long list (there are a lot of timezones) which isn't great.
 
 #### File sizes
 
