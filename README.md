@@ -68,7 +68,7 @@ Melbourne (Australia)   2024-01-01   Monday   12:32
 
 ## Web (WASM)
 
-There is also a simple web application, with offline support, which uses the methods provided by this package exported as a WebAssembly (WASM) binary.
+There is also a simple web application, with offline support, which uses the methods provided by this package exported as a WebAssembly (WASM) binary. It is available in the [www](www) folder.
 
 You will need to serve the web application from a web server (because you can't load WASM binaries from `file://` URLs) but any old web server should do the trick. I like to use the [aaronland/go-http-fileserver](https://github.com/aaronland/go-http-fileserver?tab=readme-ov-file#fileserver) tool but that is mostly because I wrote it. You can use whatever you want. For example:
 
