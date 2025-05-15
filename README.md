@@ -100,17 +100,17 @@ Unfortunately there is no "typeahead" functionality when selecting timezones on 
 
 It's all on the list. For now, there are just timezones.
 
-#### File sizes
-
-The `world_clock_time.wasm` WASM binary which does all the heavy lifting is approximately 4MB. This is not necessarily the most "efficient" way to do things but in addition to wanting a simple offline application I also wanted to continue investigating the use of WASM binaries for providing functionality in (offline) web applications. Go produces large binaries, certainly compared to the size of equivalent functionality written in JavaScript. I can live with a 4MB WASM binary for now.
-
 #### Offline mode
 
 Offline mode _should_ work without any problems. It _seems_ to work for me but ServiceWorkers and offline-anything in browsers can be fussy and brittle so if you tell me it doesn't work for you I won't be overly surpised.
 
+#### File sizes
+
+The `world_clock_time.wasm` WASM binary which does all the heavy lifting is approximately 4MB. This is not necessarily the most "efficient" way to do things but in addition to wanting a simple offline application I also wanted to continue investigating the use of WASM binaries for providing functionality in (offline) web applications. Go produces large binaries, certainly compared to the size of equivalent functionality written in JavaScript. I can live with a 4MB WASM binary for now.
+
 #### Building
 
-The `world_clock_time.wasm` binary comes precompiled with this package but if you need, or want, to revuild the `world_clock_time.wasm` binary the easiest way to do that it is to use the handy `wasmjs` Makefile target:
+The `world_clock_time.wasm` binary comes precompiled with this package but if you need, or want, to rebuild it the easiest way to do that it is to use the handy `wasmjs` Makefile target:
 
 ```
 $> make wasmjs
