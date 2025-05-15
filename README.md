@@ -98,7 +98,7 @@ Unfortunately there is no "typeahead" functionality when selecting timezones on 
 
 #### Maps, geocoders, selecting cities rather than timezones
 
-It's on the list. For now, there are just timezones.
+It's all on the list. For now, there are just timezones.
 
 #### File sizes
 
