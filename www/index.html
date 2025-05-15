@@ -14,9 +14,13 @@
 		
 		<form class="form">
 		    <div class="mb-3">
-			<label class="form-label" from="date"">Date (YYYY-MM-dd HH:mm)</label>
-			<input class="form-control" type="text" name="date" id="date" />
+			<label class="form-label" from="date">Date</label>
+			<input class="form-control" type="date" name="date" id="date" />
 		    </div>
+		    <div class="mb-3">
+			<label class="form-label" from="time">Time</label>
+			<input class="form-control" type="time" name="time" id="time" />						
+		    </div>		    
 		    <div class="mb-3">
 			<label class="form-label" from="timezone">Location</label>		
 			<select class="form-select" name="timezone" id="timezone" >
@@ -35,7 +39,7 @@
 	    <div id="results" class="grid-item">
 	    </div>
 	</div>
-	
+	<footer id="footer"></footer>
     </body>
     <script type="text/javascript" src="javascript/sfomuseum.golang.wasm.bundle.js"></script>
     <script type="text/javascript" src="javascript/worldclock.init.js"></script>    

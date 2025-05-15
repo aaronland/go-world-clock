@@ -11,23 +11,11 @@ import (
 	"fmt"
 	"log/slog"
 	"syscall/js"
-	"time"
 	_ "time/tzdata" 
 	"strings"
-	"sort"
-	"sync"
 	
 	"github.com/aaronland/go-world-clock"	
 )
-
-type TimeFuncResults struct {
-	Label string `json:"label"`
-	TimeZone string `json:"timezone"`
-	DayOfWeek string `json:"day_of_week"`
-	Date string `json:"date"`
-	Time string `json:"time"`	
-	UnixTimestamp int64 `json:"unix_timestamp"`
-}
 
 func TimeFunc() js.Func {
 
@@ -44,10 +32,6 @@ func TimeFunc() js.Func {
 		logger = logger.With("tz", tz)
 		logger = logger.With("locations", str_locs)
 		
-		filters := &clock.Filters{
-			Timezones: locations,
-		}
-
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 
 			resolve := args[0]
@@ -56,99 +40,14 @@ func TimeFunc() js.Func {
 			ctx := context.Background()
 
 			logger.Info("Lookup times")
-			
-			var source time.Time
-			
-			if date != "" {
 
-				if tz == "" {
-					logger.Error("Missing timezone")
-					reject.Invoke(fmt.Printf("Missing timezone"))
-					return nil					
-				}
-
-				// Failed to load timezone, %!w(syscall.Errno=38)2025/05/13 12:46:41 ERROR Failed load timezone date=2025-06-07T13:25 tz=Europe/London error="not implemented on js"
-				loc, err := time.LoadLocation(tz)
-				
-				if err != nil {
-					logger.Error("Failed load timezone", "error", err)
-					reject.Invoke(fmt.Printf("Failed to load timezone, %w", err))
-					return nil										
-				}
-				
-				t, err := time.ParseInLocation("2006-01-02 15:04", date, loc)
-				
-				if err != nil {
-					logger.Error("Failed to parse date", "error", err)
-					reject.Invoke(fmt.Printf("Failed to parse date, %w", err))
-					return nil										
-				}
-				
-				source = t
-				
-			} else {
-				now := time.Now()
-				source = now.Local()
-			}
-
-			clock_results, err := clock.Time(ctx, source, filters)
+			results, err := clock.TimeFromStrings(ctx, date, tz, locations...)
 
 			if err != nil {
-				logger.Error("Failed to query clock", "error", err)
-				reject.Invoke(fmt.Printf("Failed to query clock, %w", err))
+				logger.Error("Failed to determine times", "error", err)
+				reject.Invoke(fmt.Printf("Failed to determine times, %w", err))
 				return nil										
 			}
-
-			// START OF put me in a function
-			
-			results := make([]*TimeFuncResults, 0)
-
-			source_zn, source_offset := source.Zone()
-			seen := new(sync.Map)
-			
-			day_fmt := "Monday"
-			date_fmt := "2006-01-02"
-			time_fmt := "15:04"
-			
-			for _, r := range clock_results {
-
-				r_zn, r_offset := r.Time.Zone()
-
-				if r_zn == source_zn && r_offset == source_offset {
-
-					if r.Timezone != tz {
-						continue
-					}
-				}
-
-				_, exists := seen.LoadOrStore(r.Timezone, true)
-
-				if exists {
-					continue
-				}
-				
-				label_parts := strings.Split(r.Timezone, "/")
-				label := fmt.Sprintf("%s (%s)", label_parts[1], label_parts[0])
-				
-				wasm_r := &TimeFuncResults{
-					Label: label,
-					TimeZone: r.Timezone,
-					DayOfWeek: r.Time.Format(day_fmt),
-					Date: r.Time.Format(date_fmt),
-					Time: r.Time.Format(time_fmt),					
-					UnixTimestamp: r.Time.Unix(),
-				}
-				
-				results = append(results, wasm_r)
-			}
-			
-			// Sort in descending order (future to past)
-			
-			sort.Slice(results, func(i, j int) bool {
-				return results[i].UnixTimestamp > results[j].UnixTimestamp
-			})
-
-			// END OF put me in a function
 			
 			enc_results, err := json.Marshal(results)
 

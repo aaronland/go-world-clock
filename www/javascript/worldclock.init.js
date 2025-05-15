@@ -96,12 +96,17 @@ window.addEventListener("load", function load(event){
     
     var derive_times = function(){
 
-	var date_el = document.getElementById("date");
-	var timezone_el = document.getElementById("timezone");
-	var other_els = document.getElementsByClassName("other-timezone");
+	const date_el = document.getElementById("date");
+	const time_el = document.getElementById("time");	
+	const timezone_el = document.getElementById("timezone");
+	const other_els = document.getElementsByClassName("other-timezone");
 
-	var date = date_el.value;
-	var tz = timezone_el.value;
+	const date = date_el.value;
+	const time = time_el.value;
+
+	const dt = date + " " + time;
+	const tz = timezone_el.value;
+	
 	var others = [];
 	
 	var count_others = other_els.length;
@@ -110,9 +115,9 @@ window.addEventListener("load", function load(event){
 	    others.push(other_els[i].value);
 	}
 	
-	var str_others = others.join(",");
+	const str_others = others.join(",");
 
-	world_clock_time(date, tz, str_others).then((rsp) => {
+	world_clock_time(dt, tz, str_others).then((rsp) => {
 	    const results = JSON.parse(rsp);
 	    render_results(results);
 	}).catch((err) => {
