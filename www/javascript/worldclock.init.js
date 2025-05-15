@@ -1,6 +1,8 @@
 window.addEventListener("load", function load(event){
 
     var timezones;
+
+    var feedback_el = document.getElementById("feedback");
     
     var populate_timezones = function(el){
 
@@ -94,8 +96,8 @@ window.addEventListener("load", function load(event){
 	results_el.appendChild(wrapper);
     };
     
-    var derive_times = function(){
-
+    var derive_times_input = function(){
+	
 	const date_el = document.getElementById("date");
 	const time_el = document.getElementById("time");	
 	const timezone_el = document.getElementById("timezone");
@@ -103,8 +105,6 @@ window.addEventListener("load", function load(event){
 
 	const date = date_el.value;
 	const time = time_el.value;
-
-	const dt = date + " " + time;
 	const tz = timezone_el.value;
 	
 	var others = [];
@@ -112,22 +112,74 @@ window.addEventListener("load", function load(event){
 	var count_others = other_els.length;
 	
 	for (var i=0; i < count_others; i++){
-	    others.push(other_els[i].value);
+	    const tz = other_els[i].value;
+
+	    if (tz != ""){
+		others.push(tz);
+	    }
+	}
+
+	if (!date){
+	    return { error: "Missing date" };
+	}
+
+	if (! time){
+	    return { error: "Missing time" };
+	    feedback_el.innerText = "Missing time";
+	}
+
+	if (! tz){
+	    return { error: "Missing timezone" };
 	}
 	
-	const str_others = others.join(",");
+	if (others.length == 0){
+	    return { error: "No other locations to lookup" }; 
+	}
 
-	world_clock_time(dt, tz, str_others).then((rsp) => {
+	const dt = date + " " + time;	
+	const str_others = others.join(",");
+	
+	return {
+	    datetime: dt,
+	    timezone: tz,
+	    locations: str_others,
+	};
+    };
+
+    var derive_times = function(){
+
+	feedback_el.innerHTML = "";
+	
+	const data = derive_times_input();
+
+	if (data.error) {
+	    feedback_el.innerText = data.error;
+	    console.error(data.error);
+	    return false;
+	}
+	
+	world_clock_time(data.datetime, data.timezone, data.locations).then((rsp) => {
 	    const results = JSON.parse(rsp);
 	    render_results(results);
 	}).catch((err) => {
-	    console.error("SAD", err)
+	    feedback_el.innerText = "Failed to derive times: " + err;
+	    console.error("Failed to derive times", err)
 	});
 	
     };
 
     var add_other_timezone = function(){
 
+	var others_el = document.getElementById("other-timezones");
+	
+	const n = others_el.children.length + 1;
+	const id = "others-" + n;
+
+	console.log("new id", id);
+	
+	var wrapper_el = document.createElement("div");
+	wrapper_el.setAttribute("id", id);
+	
 	var select_el = document.createElement("select");
 	select_el.setAttribute("class", "form-select other-timezone");
 	
@@ -136,13 +188,119 @@ window.addEventListener("load", function load(event){
 	
 	select_el.appendChild(opt_el);
 
-	var others_el = document.getElementById("other-timezones");   	
-	others_el.appendChild(select_el);
+	var remove_im = document.createElement("img");
+	remove_im.setAttribute("src", "images/remove.svg");
+	remove_im.setAttribute("height", 20);
+	remove_im.setAttribute("width", 20);	
+	remove_im.setAttribute("data-wrapper-id", id);
+	
+	var remove_el = document.createElement("div");
+	remove_el.setAttribute("class", "remove-other");
+	remove_el.setAttribute("data-wrapper-id", id);
+	remove_el.appendChild(remove_im);
+
+	remove_el.onclick = function(e){
+
+	    var el = e.target;
+	    var wrapper_id = el.getAttribute("data-wrapper-id");
+	    var wrapper_el = document.getElementById(wrapper_id);
+
+	    if (wrapper_id){
+		wrapper_el.remove();
+	    }
+	    
+	    return false;
+	};
+
+	wrapper_el.appendChild(remove_el);
+	wrapper_el.appendChild(select_el);
+	
+	others_el.appendChild(wrapper_el);
 	
 	populate_timezones(select_el);
 	return false;
 	
     };
+
+    var init = function(){
+
+	var timezone_el = document.getElementById("timezone");    	    
+	populate_timezones(timezone_el);
+	
+	var others = document.getElementsByClassName("other-timezone");
+	var others_count = others.length;
+	
+	for (var i=0; i < others_count; i++){
+	    populate_timezones(others[i]);
+	}
+	
+	var add_el = document.getElementById("add-other");
+	add_el.style.display = "inline";
+	
+	add_el.onclick = function(){
+	    
+	    try {
+		add_other_timezone();
+	    } catch(err){
+		feedback_el.innerText = "Failed to add new location: " + err;		    
+		console.error("SAD", err)
+	    };
+	    
+	    return false;
+	};
+	
+	var submit_el = document.getElementById("submit");
+	
+	submit_el.onclick = function(){
+	    
+	    try {
+		derive_times();
+	    } catch (err) {
+		console.error("Failed to derive times", err);
+	    }
+	    
+	    return false;
+	};
+	
+	submit_el.removeAttribute("disabled");
+	feedback_el.innerHTML = "";
+    };
+
+    var setup_offline = function(){
+
+	console.debug("Setup offline support");
+	
+	const scope = location.pathname;
+	
+	worldclock.offline.init(scope).then((rsp) => {
+
+	    console.debug("Offline service workers registered for scope " + scope);
+	    
+	    var purge_el = document.createElement("span");
+	    purge_el.setAttribute("id", "purge");
+	    purge_el.appendChild(document.createTextNode("purge offline cache"));
+	    
+	    purge_el.onclick = function(){
+		
+		worldclock.offline.purge_with_confirmation().then((rsp) => {
+		    feedback_el.innerText = "Offline cache has been removed.";
+		}).catch((err) => {
+		    feedback_el.innerText = "Failed to purge offline cache, " + err;
+		});
+		
+		return false;
+	    };
+	    
+	    var footer = document.getElementById("footer");	
+	    footer.appendChild(purge_el);
+	    
+	}).catch((err) => {
+	    feedback_el.innerText = "Failed to initialize offline mode, " + err;
+	});
+	
+    };
+    
+    // Okay, go!
     
     sfomuseum.golang.wasm.fetch("wasm/world_clock_time.wasm").then((rsp) => {
 
@@ -151,49 +309,40 @@ window.addEventListener("load", function load(event){
 	    try {
 		timezones = JSON.parse(rsp);
 	    } catch(err) {
+		feedback_el.innerText = "Failed to derive timezones list: " + err;
 		console.error(err);
 		return false
 	    }
 
-	    var timezone_el = document.getElementById("timezone");    	    
-	    populate_timezones(timezone_el);
-
-	    var others = document.getElementsByClassName("other-timezone");
-	    var others_count = others.length;
-
-	    for (var i=0; i < others_count; i++){
-		populate_timezones(others[i]);
-	    }
-
-	    var add_el = document.getElementById("add-other");
-	    add_el.style.display = "inline";
+	    const offline = document.body.hasAttribute("offline");
 	    
-	    add_el.onclick = function(){
-		add_other_timezone();
-		return false;
-	    };
-
-	    var submit_el = document.getElementById("submit");
-	    
-	    submit_el.onclick = function(){
+	    if (offline){
 
 		try {
-		    derive_times();
+		    setup_offline();
 		} catch (err) {
-		    console.error("Failed to derive times", err);
+		    feedback_el.innerText = "Failed to setup offline support: " + err;
+		    console.error(err);
+		    return false;
 		}
-				
+	    }
+
+	    try {
+		init();
+	    } catch(err) {
+		feedback_el.innerText = "Failed to initialize application: " + err;
+		console.error(err);
 		return false;
-	    };
-	    
-	    submit_el.removeAttribute("disabled");
+	    }
 	    
 	}).catch((err) => {
+	    feedback_el.innerText = "Failed to derive timezones list: " + err;	    
 	    console.error("Failed to retrieve timezones", err);
 	})
 
 	
     }).catch((err) => {
+	feedback_el.innerText = "Failed to load application: " + err;	
 	console.error("Failed to load update WASM binary", err);
         return;
     });

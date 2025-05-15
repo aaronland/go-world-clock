@@ -7,11 +7,11 @@
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/worldclock.css" />	
     </head>
-    <body>
+    <body offline>
 
 	<div class="row grid">
 	    <div id"="input" class="grid-item">
-		
+
 		<form class="form">
 		    <div class="mb-3">
 			<label class="form-label" from="date">Date</label>
@@ -28,14 +28,15 @@
 			</select>
 		    </div>
 		    <div class="mb-3" id="other-timezones">
-			<!-- https://icons.getbootstrap.com/icons/plus-square/ -->
-			<svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16" style="float:right;" id="add-other"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-			</svg>
+			<div id="add-other" class="add-other">
+			    <img src="images/add.svg" height="20" width="20" />
+			</div>
 			<label class="form-label" from="from">Other locations</label>		
 			<select class="form-select other-timezone">
 			    <option value="" />		    
 			</select>
 		    </div>
+		    <div id="feedback">Loading application...</div>		
 		    <button class="btn btn-primary" disabled="disabled" id="submit">Lookup</button>
 		</form>
 	    </div>

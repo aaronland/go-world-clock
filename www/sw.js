@@ -1,17 +1,23 @@
-const cache_name = 'world-clock-time-v0.0.1';
+const cache_name = 'world-clock-v0.0.2';
 
 const app_files = [
     // HTML
     "./index.html",
+
+    // Images
+    "./images/add.svg",
+    "./images/remove.svg",
     
     // CSS
     "./css/bootstrap.min.css",
+    "./css/worldclock.css",    
     
     // Javascript dependencies
     "./javascript/sfomuseum.golang.wasm.bundle.js",
-    
+
     // Javascript application
-    "./javascript/init.js",    
+    "./javascript/worldclock.offline.js",        
+    "./javascript/worldclock.init.js",    
 
     // WASM
     "./wasm/world_clock_time.wasm",

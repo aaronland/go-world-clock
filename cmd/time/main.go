@@ -49,7 +49,7 @@ func main() {
 
 		fmt.Printf("%s %s %s %s\n", label, date, dow, time)
 	}
-	
+
 }
 
 func padding(input string, final int) string {

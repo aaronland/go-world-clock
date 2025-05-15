@@ -17,6 +17,29 @@ footer {
 	display:none;
 }
 
+#feedback {
+	font-style:italic;
+	font-size: small;
+}
+
+#purge {
+	font-size:small;
+	font-style: italic;
+	color:#666;
+}
+
+#submit {
+	float:right;
+}
+
+.add-other {
+	float:right;
+}
+
+.remove-other {
+	float:right;
+	margin-bottom: .75rem;
+}
 
 .other-timezone {
 	margin-bottom: 1rem !important;

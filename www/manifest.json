@@ -1,0 +1,11 @@
+{
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "name": "World Clock",
+    "short_name": "World Clock",
+    "description": "What time is it there?",
+    "icons": [],
+    "start_url": ".",
+    "display": "fullscreen",
+    "theme_color": "#fff",
+    "background_color": "#fff"
+}
