@@ -83,7 +83,7 @@ func TimeZonesFunc() js.Func {
 					continue
 				}
 
-				tz_parts := strings.Split(tz_name, "/")
+				tz_parts := strings.SplitN(tz_name, "/", 2)
 
 				tz_label := fmt.Sprintf("%s (%s)", tz_parts[1], tz_parts[0])
 				
@@ -97,7 +97,7 @@ func TimeZonesFunc() js.Func {
 			}
 
 			sort.Slice(tz_results, func(i, j int) bool {
-				return tz_results[i].Name < tz_results[j].Name
+				return tz_results[i].Label < tz_results[j].Label
 			})
 			
 			enc_results, err := json.Marshal(tz_results)

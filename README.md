@@ -60,20 +60,8 @@ Valid options are:
 #### Example:
 
 ```
-$> ./bin/time  -in Melbourne -in Cairo -in Honolulu -in China -in Montreal -in London
-Pacific/Honolulu         HST	Tuesday    2021-09-14 13:38
-👉                       PDT	Tuesday    2021-09-14 16:38 👈
-America/Montreal         EDT	Tuesday    2021-09-14 19:38
-Europe/London            BST	Wednesday  2021-09-15 00:38
-Africa/Cairo             EET	Wednesday  2021-09-15 01:38
-Australia/Melbourne      AEST	Wednesday  2021-09-15 09:38
-```
-
-Or specifying a custom date in a timezone:
-
-```
-$> ./bin/time  -date '2021-09-15 03:00' -timezone 'Asia/Singapore' -in London -in 'Los_Angeles'
-America/Los_Angeles      PDT	Tuesday    2021-09-14 12:00
-Europe/London            BST	Tuesday    2021-09-14 20:00
-👉                       +08	Wednesday  2021-09-15 03:00 👈
+$> ./bin/time -date '2023-12-31 20:32' -timezone America/Montreal -in Europe/London -in Australia/Melbourne
+Montreal (America)      2023-12-31   Sunday   20:32
+London (Europe)         2024-01-01   Monday   01:32
+Melbourne (Australia)   2024-01-01   Monday   12:32
 ```

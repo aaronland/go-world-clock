@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log/slog"
 	"sort"
 	"strconv"
 	"strings"
@@ -24,6 +23,8 @@ type TimeResults struct {
 	UnixTimestamp int64  `json:"unix_timestamp"`
 }
 
+// TimeFromStrings returns a list of `TimeResults` instances derived from a source time defined by 'date' and 'string'
+// for one or more locations (timezones) defined by 'locations'.
 func TimeFromStrings(ctx context.Context, date string, tz string, locations ...string) ([]*TimeResults, error) {
 
 	var source time.Time
@@ -124,8 +125,6 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 
 	source_zn, source_offset := source.Zone()
 
-	slog.Info("GET TIME", "source", source_zn, "offset", source_offset)
-
 	tz_fs := timezones.FS
 	tz_fh, err := tz_fs.Open("timezones.csv")
 
@@ -205,8 +204,6 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 
 			if row_zn == source_zn || row_offset == source_offset {
 
-				slog.Info("WTF", "row", row_zn, "source", source_zn)
-
 				l := &Location{
 					Time:     source,
 					Id:       row_id,
@@ -226,7 +223,6 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 					for _, label := range f.Timezones {
 
 						if strings.Contains(row_tz, label) {
-							// slog.Info("OK", "row", row_tz, "label", label)
 							ok = true
 							break
 						}
