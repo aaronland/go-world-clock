@@ -5,14 +5,116 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	_ "log"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/aaronland/go-world-clock/timezones"	
+	"github.com/aaronland/go-world-clock/timezones"
 )
+
+type TimeResults struct {
+	Label         string `json:"label"`
+	TimeZone      string `json:"timezone"`
+	DayOfWeek     string `json:"day_of_week"`
+	Date          string `json:"date"`
+	Time          string `json:"time"`
+	UnixTimestamp int64  `json:"unix_timestamp"`
+}
+
+// TimeFromStrings returns a list of `TimeResults` instances derived from a source time defined by 'date' and 'string'
+// for one or more locations (timezones) defined by 'locations'.
+func TimeFromStrings(ctx context.Context, date string, tz string, locations ...string) ([]*TimeResults, error) {
+
+	var source time.Time
+
+	if date != "" {
+
+		if tz == "" {
+			return nil, fmt.Errorf("Missing timezone")
+		}
+
+		loc, err := time.LoadLocation(tz)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to load timezone, %w", err)
+		}
+
+		t, err := time.ParseInLocation("2006-01-02 15:04", date, loc)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse date, %w", err)
+		}
+
+		source = t
+
+	} else {
+		now := time.Now()
+		source = now.Local()
+	}
+
+	filters := &Filters{
+		Timezones: locations,
+	}
+
+	clock_results, err := Time(ctx, source, filters)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to query clock, %w", err)
+	}
+
+	// Filter and sort
+
+	results := make([]*TimeResults, 0)
+
+	source_zn, source_offset := source.Zone()
+	seen := new(sync.Map)
+
+	day_fmt := "Monday"
+	date_fmt := "2006-01-02"
+	time_fmt := "15:04"
+
+	for _, r := range clock_results {
+
+		r_zn, r_offset := r.Time.Zone()
+
+		if r_zn == source_zn && r_offset == source_offset {
+
+			if r.Timezone != tz {
+				continue
+			}
+		}
+
+		_, exists := seen.LoadOrStore(r.Timezone, true)
+
+		if exists {
+			continue
+		}
+
+		label_parts := strings.Split(r.Timezone, "/")
+		label := fmt.Sprintf("%s (%s)", label_parts[1], label_parts[0])
+
+		wasm_r := &TimeResults{
+			Label:         label,
+			TimeZone:      r.Timezone,
+			DayOfWeek:     r.Time.Format(day_fmt),
+			Date:          r.Time.Format(date_fmt),
+			Time:          r.Time.Format(time_fmt),
+			UnixTimestamp: r.Time.Unix(),
+		}
+
+		results = append(results, wasm_r)
+	}
+
+	// Sort in descending order (future to past)
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].UnixTimestamp > results[j].UnixTimestamp
+	})
+
+	return results, nil
+}
 
 // Time will return zero or more Location records in other timezones for the time defined in source.
 // Results may be limited by passing in a Filter instance with zero or more limits.
@@ -21,7 +123,7 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	source_zn, _ := source.Zone()
+	source_zn, source_offset := source.Zone()
 
 	tz_fs := timezones.FS
 	tz_fh, err := tz_fs.Open("timezones.csv")
@@ -98,8 +200,9 @@ func Time(ctx context.Context, source time.Time, f *Filters) ([]*Location, error
 			row_id := row[0]
 			row_tz := row[1]
 			row_zn := row[2]
+			row_offset, _ := strconv.Atoi(row[3])
 
-			if row_zn == source_zn {
+			if row_zn == source_zn || row_offset == source_offset {
 
 				l := &Location{
 					Time:     source,
