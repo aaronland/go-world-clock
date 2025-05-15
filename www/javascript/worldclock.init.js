@@ -275,12 +275,8 @@ window.addEventListener("load", function load(event){
 	worldclock.offline.init(scope).then((rsp) => {
 
 	    console.debug("Offline service workers registered for scope " + scope);
-	    
-	    var purge_el = document.createElement("span");
-	    purge_el.setAttribute("id", "purge");
-	    purge_el.appendChild(document.createTextNode("purge offline cache"));
-	    
-	    purge_el.onclick = function(){
+
+	    const purge_func = function(){
 		
 		worldclock.offline.purge_with_confirmation().then((rsp) => {
 		    feedback_el.innerText = "Offline cache has been removed.";
@@ -291,8 +287,20 @@ window.addEventListener("load", function load(event){
 		return false;
 	    };
 	    
-	    var footer = document.getElementById("footer");	
-	    footer.appendChild(purge_el);
+	    var purge_im = document.createElement("img");
+	    purge_im.setAttribute("src", "images/purge.svg");
+	    purge_im.setAttribute("height", 16);
+	    purge_im.setAttribute("width", 16);
+	    purge_im.onclick = purge_func;
+
+	    /*
+	    var purge_el = document.createElement("span");
+	    purge_el.setAttribute("id", "purge");
+	    purge_el.appendChild(purge_im);
+	    */
+	    
+	    var header = document.getElementById("header");	
+	    header.appendChild(purge_im);
 	    
 	}).catch((err) => {
 	    feedback_el.innerText = "Failed to initialize offline mode, " + err;

@@ -4,13 +4,11 @@ body {
 	padding-right:1.5rem;	
 }
 
-footer {
-	margin-top: 2rem;
+header {
 	display:flex;
 	justify-content: right;
-	position: fixed;
-	right: 1.25rem;
-	bottom: 1rem;
+	width:100%;
+	margin-bottom:1.5rem;
 }
 
 #add-other {

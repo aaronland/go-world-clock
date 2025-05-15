@@ -1,4 +1,4 @@
-const cache_name = 'world-clock-v0.0.2';
+const cache_name = 'world-clock-v0.0.5';
 
 const app_files = [
     // HTML
@@ -7,6 +7,7 @@ const app_files = [
     // Images
     "./images/add.svg",
     "./images/remove.svg",
+    "./images/purge.svg",    
     
     // CSS
     "./css/bootstrap.min.css",
