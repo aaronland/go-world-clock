@@ -96,6 +96,10 @@ The application is also responsive so on smaller screens the results are shown b
 
 Unfortunately there is no "typeahead" functionality when selecting timezones on mobile devices. This means scrolling through a very long list (there are a lot of timezones) which isn't great.
 
+#### Maps, geocoders, selecting cities rather than timezones
+
+It's on the list. For now, there are just timezones.
+
 #### File sizes
 
 The `world_clock_time.wasm` WASM binary which does all the heavy lifting is approximately 4MB. This is not necessarily the most "efficient" way to do things but in addition to wanting a simple offline application I also wanted to continue investigating the use of WASM binaries for providing functionality in (offline) web applications. Go produces large binaries, certainly compared to the size of equivalent functionality written in JavaScript. I can live with a 4MB WASM binary for now.
